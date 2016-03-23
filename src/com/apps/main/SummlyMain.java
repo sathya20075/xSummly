@@ -1,6 +1,6 @@
 package com.apps.main;
 
-import java.lang.Double;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class SummlyMain
@@ -15,13 +16,16 @@ public class SummlyMain
 	
 	public static void main(String args[]){
 	
+		HashMap<String,BigDecimal> getContentRanks =null;
+		String title ="Swayy is a beautiful new dashboard for discovering and curating online content [Invites]";
+		
 		String content = "";
 		
 		content += "Lior Degani, the Co-Founder and head of Marketing of Swayy, pinged me last week when I was in California to tell me about his startup and give me beta access. I heard his pitch and was skeptical. I was also tired, cranky and missing my kids – so my frame of mind wasn't the most positive.\n";
 		content += "I went into Swayy to check it out, and when it asked for access to my Twitter and permission to tweet from my account, all I could think was, \"If this thing spams my Twitter account I am going to bitch-slap him all over the Internet.\" Fortunately that thought stayed in my head, and not out of my mouth.\n";
 		content += "One week later, I'm totally addicted to Swayy and glad I said nothing about the spam (it doesn't send out spam tweets but I liked the line too much to not use it for this article). I pinged Lior on Facebook with a request for a beta access code for TNW readers. I also asked how soon can I write about it. It's that good. Seriously. I use every content curation service online. It really is That Good.\n";
 		content += "What is Swayy? It's like Percolate and LinkedIn recommended articles, mixed with trending keywords for the topics you find interesting, combined with an analytics dashboard that shows the trends of what you do and how people react to it. I like it for the simplicity and accuracy of the content curation.\n"; 
-		content += "Everything I'm actually interested in reading is in one place – I don't have to skip from another major tech blog over to Harvard Business Review then hop over to another major tech or business blog. It's all in there. And it has saved me So Much Time\n\n";
+		content += "Everything I'm actually interested in reading is in one place – I don't have to skip from another major tech blog over to Harvard Business Review then hop over to another major tech or business blog. It's all in there. And it has saved me So Much Time\n";
 		content += "After I decided that I trusted the service, I added my Facebook and LinkedIn accounts. The content just got That Much Better. I can share from the service itself, but I generally prefer reading the actual post first – so I end up sharing it from the main link, using Swayy more as a service for discovery.\n";
 		content += "I'm also finding myself checking out trending keywords more often (more often than never, which is how often I do it on Twitter.com).\n\n\n";
 		content += "The analytics side isn't as interesting for me right now, but that could be due to the fact that I've barely been online since I came back from the US last weekend. The graphs also haven't given me any particularly special insights as I can't see which post got the actual feedback on the graph side (however there are numbers on the Timeline side.) This is a Beta though, and new features are being added and improved daily. I'm sure this is on the list. As they say, if you aren't launching with something you're embarrassed by, you've waited too long to launch.\n";
@@ -42,10 +46,24 @@ public class SummlyMain
 		//summly.splitContentToParagraphs(content);
 		String sen1 ="Want to try Swayy out without having to wait? Go to this secret URL and enter the promotion code thenextweb . The first 300 people to use the code will get access.";
 		String sen2 ="This is not nature god";
+		String Summary = null;
 		//BigDecimal norm =summly.returnNormalizationValueOfSentences(sen1,sen2);
 		
 		//summly.formatSentences(sen1);
-		summly.getSentenceRanks(content);
+		getContentRanks=summly.getSentenceRanks(content);
+		
+		/*Iterator contentIterator = getContentRanks.keySet().iterator();
+		while(contentIterator.hasNext())
+		{
+			String key = contentIterator.next().toString();
+			//System.out.println("Key: "+ key);
+			//System.out.println("Value:" +getContentRanks.get(key));
+			
+		}*/
+		Summary = summly.getSummary(title, content, getContentRanks);
+		System.out.println(Summary);
+		System.out.println("Original Length: " +content.length());
+		System.out.println("Summary Length: " +Summary.length());
 	}
 	
 	public List<String> splitContentToSentences(String content)
@@ -59,22 +77,26 @@ public class SummlyMain
 		 String[] result = content.split(".\n");
 		 sentencesrepo = new ArrayList<String>();
 		 for(String s:result){
-			 System.out.println(s);
+			// System.out.println(s);
 			 sentencesrepo.add(s);
 		 }
 		}
 		return sentencesrepo;
 	}
 	
-	public void splitContentToParagraphs(String content)
+	public List<String> splitContentToParagraphs(String content)
 	{
+		List<String> paragraphrepo = null;
 		if(content.length() != 0)
 		{
 			String[] result = content.split("\n\n");
+			paragraphrepo = new ArrayList<String>();
 			for(String s:result){
-				System.out.println(s);
+				//System.out.println(s);
+				paragraphrepo.add(s);
 			}
 		}
+		return paragraphrepo;
 	}
     
 	public String formatSentences(String Sentence)
@@ -83,7 +105,7 @@ public class SummlyMain
 		if(!Sentence.isEmpty())
 		{
 			sentence = Sentence.replaceAll("\\W*", "");
-			System.out.println("Sentence: " +sentence);
+			//System.out.println("Sentence: " +sentence);
 		}
 		
 		return sentence;
@@ -116,14 +138,14 @@ public class SummlyMain
 		Collection<String> listTwo = new ArrayList<String>(Arrays.asList(str2Array));
              
 		listOne.retainAll( listTwo );
-		System.out.println( listOne );
+		//System.out.println( listOne );
 		int sentenceLength = (str1Array.length+str2Array.length)/2;
 		commonTokensSize = new BigDecimal(listOne.size());
 		averageSentenceLength = new BigDecimal(sentenceLength);
 		
 		normValue = commonTokensSize.divide(averageSentenceLength, 4, RoundingMode.CEILING);
 		
-		System.out.println(normValue);		
+		//System.out.println(normValue);		
 		
 		return normValue;
 		
@@ -136,7 +158,7 @@ public class SummlyMain
     {
     	
     	int sentencerepoLength=0;
-    	BigDecimal score = new BigDecimal(0);
+    	BigDecimal score;
     	BigDecimal[][] scorerepo={};
     	List<String> sentencesList = null;
     	HashMap<String,BigDecimal> sentDict = null;
@@ -151,8 +173,8 @@ public class SummlyMain
     	{
     		sentencesList = splitContentToSentences(content);
     		if(sentencesList.size() != 0)
-    		{
-    			sentencesList.size();
+    		{    			
+    			sentencerepoLength=sentencesList.size();
     			scorerepo =  new BigDecimal[sentencerepoLength][sentencerepoLength];
     			for(int i=0;i<=sentencerepoLength-1;i++)
     			{
@@ -166,7 +188,7 @@ public class SummlyMain
     			sentDict = new HashMap<String,BigDecimal>();
     			for(int i=0;i<=sentencerepoLength-1;i++)
     			{
-    				
+    				score=new BigDecimal(0);
     				for(int j=0;j<=sentencerepoLength-1;j++)
     				{
     					if(i==j){
@@ -187,5 +209,71 @@ public class SummlyMain
     	return sentDict;
     }
 	
-	
+    public String getBestSentence(String paragraph, HashMap<String,BigDecimal> sentenceDict)
+    {
+    	
+    	String bestSentence = null;
+    	String sentenceKey = null;
+    	BigDecimal maxValue = new BigDecimal(0);
+    	List<String> sentencesList = null;
+    	
+    	
+    	sentencesList = splitContentToSentences(paragraph);
+    	
+    	if(sentencesList.size() < 2)
+    	{
+    		return null;
+    	}
+    	
+    	for(String s:sentencesList)
+    	{
+    		sentenceKey=formatSentences(s);
+    		
+    		try
+    		{
+    			if((!sentenceKey.isEmpty()) && (sentenceDict.get(sentenceKey).compareTo(maxValue)) == 1)
+    			{
+    				maxValue = sentenceDict.get(sentenceKey);
+    				bestSentence = s;
+    				System.out.println("Matches!!");
+    				
+    			}
+        		else
+        		{
+        			continue;
+        		}
+    		}catch(NullPointerException ex)
+    		{
+    			ex.printStackTrace();
+    		}
+    		
+    					
+    	}
+    	
+    	return bestSentence;    	
+     }
+    
+	 public String getSummary(String title, String content, HashMap<String,BigDecimal> sentenceDict)
+	 {
+		 
+		 List<String> paragraphs = null;
+		 String sentence = null;
+		 StringBuffer bString = new StringBuffer();
+		 
+		 paragraphs=splitContentToParagraphs(content);
+		 
+		 
+		
+		 bString.append(title);
+		 bString.append(" ");
+		 
+		 
+		 for(String paragraph:paragraphs)
+		 {
+			 sentence = getBestSentence(paragraph,sentenceDict).trim();
+			 bString.append(sentence);
+			 
+		 }
+		 return bString.append("\n").toString();
+	 }
 }
